@@ -1,14 +1,13 @@
 package com.dahuaboke.netty;
 
-import com.dahuaboke.handler.HttpController;
+import com.dahuaboke.handler.controller.HttpController;
 import com.dahuaboke.spring.SpringBeanUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.CharsetUtil;
 
 import java.util.HashMap;
@@ -20,8 +19,6 @@ import java.util.Map;
  * @time 2023/7/17 10:01
  */
 public class NettyHandler extends ChannelInboundHandlerAdapter {
-
-    private ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
@@ -43,6 +40,8 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
             response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json");
             response.headers().set(HttpHeaderNames.CONTENT_LENGTH, content.readableBytes());
             ctx.writeAndFlush(response);
+        } else if(msg instanceof WebSocketFrame) {
+
         }
     }
 

@@ -1,14 +1,15 @@
 package com.dahuaboke.handler.service;
 
+import com.dahuaboke.handler.net.HttpClient;
 import com.dahuaboke.spring.SpringProperties;
 import io.netty.handler.codec.http.HttpMethod;
 import okhttp3.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -18,17 +19,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 public class ForwardService {
 
+    @Autowired
     private SpringProperties springProperties;
-    private OkHttpClient httpClient;
-
-    public ForwardService(SpringProperties springProperties) {
-        this.springProperties = springProperties;
-        httpClient = new OkHttpClient
-                .Builder()
-                .connectTimeout(springProperties.getForwardConnectTimeout(), TimeUnit.MILLISECONDS)
-                .readTimeout(springProperties.getForwardReadTimeout(), TimeUnit.MILLISECONDS)
-                .build();
-    }
+    @Autowired
+    private HttpClient httpClient;
 
     public String forward(HttpMethod httpType, String uri, Map<String, String> headers, String body) {
         return forward(httpType, uri, headers, body, new AtomicInteger(0));
@@ -64,7 +58,7 @@ public class ForwardService {
                 request = builder.post(requestBody).url(postUrl).build();
                 break;
         }
-        httpClient.newCall(request).enqueue(new Callback() {
+        httpClient.getInstance().newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 if (index.intValue() < springProperties.getForwardAddress().length - 1) {

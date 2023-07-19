@@ -1,4 +1,4 @@
-package com.dahuaboke.handler;
+package com.dahuaboke.handler.controller;
 
 import com.dahuaboke.handler.service.ForwardService;
 import com.dahuaboke.handler.service.JsonFileService;
