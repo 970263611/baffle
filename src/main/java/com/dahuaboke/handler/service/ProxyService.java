@@ -17,7 +17,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @time 2023/7/17 10:46
  */
 @Component
-public class ForwardService {
+public class ProxyService {
+
+    public String
+
 
     @Autowired
     private SpringProperties springProperties;

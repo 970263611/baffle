@@ -10,8 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author dahua
@@ -23,32 +21,19 @@ public abstract class AbstractTemplate {
     @Autowired
     private HttpClient httpClient;
 
-    public String exec(HttpMethod httpType, String uri, Map<String, String> headers, String body){
+    public String exec(HttpMethod httpType, String uri, Map<String, String> headers, String body, RequestCallBack requestCallBack) {
         Request request = forward(httpType, uri, headers, body);
         httpClient.getInstance().newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                if (index.intValue() < springProperties.getForwardAddress().length - 1) {
-                    String forward = forward(httpType, uri, headers, body, new AtomicInteger(index.getAndIncrement()));
-                    completableFuture.complete(forward);
-                } else {
-                    completableFuture.complete(null);
-                }
+                requestCallBack.complate(false, e.fillInStackTrace().toString());
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                completableFuture.complete(response.body().string());
+                requestCallBack.complate(true, response.body().string());
             }
         });
-        try {
-            String result = completableFuture.get();
-            System.out.println("调用返回结果 -> " + result);
-            return result;
-        } catch (Exception e) {
-            System.out.println("调用失败");
-            return null;
-        }
     }
 
     abstract Request forward(HttpMethod httpType, String uri, Map<String, String> headers, String body);

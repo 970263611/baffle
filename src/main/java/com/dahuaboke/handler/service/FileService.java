@@ -16,11 +16,11 @@ import java.util.Map;
  * @time 2023/7/17 10:44
  */
 @Component
-public class JsonFileService {
+public class FileService {
 
     private Map<String, JsonFileObject> jsonMap = new HashMap();
 
-    public JsonFileService() {
+    public FileService() {
         ObjectMapper objectMapper = new ObjectMapper();
         InputStream inputStream = TypeReference.class.getResourceAsStream("/data.json");
         try {

@@ -1,7 +1,7 @@
 package com.dahuaboke.handler.controller;
 
-import com.dahuaboke.handler.service.ForwardService;
-import com.dahuaboke.handler.service.JsonFileService;
+import com.dahuaboke.handler.service.ProxyService;
+import com.dahuaboke.handler.service.FileService;
 import com.dahuaboke.model.BaffleMode;
 import com.dahuaboke.model.JsonFileObject;
 import com.dahuaboke.spring.SpringProperties;
@@ -21,9 +21,9 @@ import java.util.Map;
 public class HttpController {
 
     @Autowired
-    private JsonFileService jsonFileService;
+    private FileService fileService;
     @Autowired
-    private ForwardService forwardService;
+    private ProxyService proxyService;
     @Autowired
     private SpringProperties springProperties;
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -31,7 +31,7 @@ public class HttpController {
     public String handle(HttpMethod method, String uri, Map<String, String> headers, String body) {
         System.out.println(String.format("接入新请求：method：%s，uri：%s，headers：%s，body：%s", method, uri, headers, body));
         String result = null;
-        JsonFileObject jsonFileObject = jsonFileService.getObjByUri(uri);
+        JsonFileObject jsonFileObject = fileService.getObjByUri(uri);
         //全局
         BaffleMode baffleMode = springProperties.getBaffleMode();
         if (jsonFileObject != null) {
@@ -45,14 +45,14 @@ public class HttpController {
             case FILE:
                 if (jsonFileObject == null) {
                     System.out.println("文件中未找到，请求后端获取数据");
-                    result = forwardService.forward(method, uri, headers, body);
+                    result = proxyService.forward(method, uri, headers, body);
                 } else {
                     result = getFileMessage(jsonFileObject);
                     System.out.println("文件中存在，返回结果 -> " + result);
                 }
                 break;
             case SERVICE:
-                result = forwardService.forward(method, uri, headers, body);
+                result = proxyService.forward(method, uri, headers, body);
                 if (result == null) {
                     System.out.println("后端服务未成功返回，寻找文件数据");
                     result = getFileMessage(jsonFileObject);
@@ -69,14 +69,14 @@ public class HttpController {
                 }
                 break;
             case ONLY_SERVICE:
-                result = forwardService.forward(method, uri, headers, body);
+                result = proxyService.forward(method, uri, headers, body);
                 System.out.println("后端服务返回 -> " + result);
                 break;
             default:
                 result = getFileMessage(jsonFileObject);
                 if (result == null) {
                     System.out.println("文件中未找到，请求后端获取数据");
-                    result = forwardService.forward(method, uri, headers, body);
+                    result = proxyService.forward(method, uri, headers, body);
                     System.out.println("后端服务返回 -> " + result);
                 } else {
                     System.out.println("文件中存在，返回结果 -> " + result);
