@@ -3,14 +3,13 @@ package com.dahuaboke.handler.service;
 import com.dahuaboke.spring.SpringProperties;
 import io.netty.handler.codec.http.HttpMethod;
 import okhttp3.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author dahua
@@ -19,19 +18,23 @@ import java.util.concurrent.atomic.AtomicReference;
 @Component
 public class ForwardService {
 
-    @Autowired
     private SpringProperties springProperties;
     private OkHttpClient httpClient;
 
-    public ForwardService() {
-        httpClient = new OkHttpClient();
+    public ForwardService(SpringProperties springProperties) {
+        this.springProperties = springProperties;
+        httpClient = new OkHttpClient
+                .Builder()
+                .connectTimeout(springProperties.getForwardConnectTimeout(), TimeUnit.MILLISECONDS)
+                .readTimeout(springProperties.getForwardReadTimeout(), TimeUnit.MILLISECONDS)
+                .build();
     }
 
-    public String forward(HttpMethod httpType, String uri, Map<String, String> headers, String requestContent, Map<String, String> body) {
-        return forward(httpType, uri, headers, requestContent, body, new AtomicInteger(0));
+    public String forward(HttpMethod httpType, String uri, Map<String, String> headers, String body) {
+        return forward(httpType, uri, headers, body, new AtomicInteger(0));
     }
 
-    public String forward(HttpMethod httpType, String uri, Map<String, String> headers, String requestContent, Map<String, String> body, AtomicInteger index) {
+    public String forward(HttpMethod httpType, String uri, Map<String, String> headers, String body, AtomicInteger index) {
         CompletableFuture<String> completableFuture = new CompletableFuture();
         Request request = null;
         Request.Builder builder = new Request.Builder();
@@ -42,7 +45,6 @@ public class ForwardService {
         if (host.endsWith("/")) {
             host = host.substring(0, host.length() - 1);
         }
-        System.out.println("发起请求：" + host);
         if (headers != null) {
             headers.forEach((k, v) -> {
                 builder.addHeader(k, v);
@@ -50,36 +52,23 @@ public class ForwardService {
         }
         switch (httpType.name()) {
             case "GET":
-                AtomicReference<String> getUrl = new AtomicReference<>(host + uri);
-                if (body != null) {
-                    getUrl.set(getUrl.get() + "?");
-                    body.forEach((k, v) -> {
-                        getUrl.set(getUrl.get() + k + "=" + v + "&");
-                    });
-                }
-                if (requestContent != null && !"".equals(requestContent)) {
-                    getUrl.set(getUrl.get() + "?" + requestContent);
-                }
-                request = builder.get().url(getUrl.get()).build();
+                String url = host + uri;
+                System.out.println("发起请求：" + url);
+                request = builder.get().url(url).build();
                 break;
             case "POST":
-                FormBody.Builder builderPost = new FormBody.Builder();
-                if (body != null) {
-                    body.forEach((k, v) -> {
-                        builderPost.add(k, v);
-                    });
-                }
-                FormBody formBody = builderPost.build();
-                String postUrl = host + uri + "?" + requestContent;
-                request = builder.post(formBody).url(postUrl).build();
+                String postUrl = host + uri;
+                System.out.println("发起请求：" + postUrl);
+                MediaType JSON = MediaType.get("application/json; charset=utf-8");
+                RequestBody requestBody = RequestBody.create(body, JSON);
+                request = builder.post(requestBody).url(postUrl).build();
                 break;
         }
-        Call call = httpClient.newCall(request);
-        call.enqueue(new Callback() {
+        httpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 if (index.intValue() < springProperties.getForwardAddress().length - 1) {
-                    String forward = forward(httpType, uri, headers, requestContent, body, new AtomicInteger(index.getAndIncrement()));
+                    String forward = forward(httpType, uri, headers, body, new AtomicInteger(index.getAndIncrement()));
                     completableFuture.complete(forward);
                 } else {
                     completableFuture.complete(null);

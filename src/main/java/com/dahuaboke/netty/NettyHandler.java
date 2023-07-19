@@ -2,20 +2,17 @@ package com.dahuaboke.netty;
 
 import com.dahuaboke.handler.HttpController;
 import com.dahuaboke.spring.SpringBeanUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
-import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
-import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
-import io.netty.handler.codec.http.multipart.InterfaceHttpData;
-import io.netty.handler.codec.http.multipart.MemoryAttribute;
 import io.netty.util.CharsetUtil;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,6 +20,8 @@ import java.util.Map;
  * @time 2023/7/17 10:01
  */
 public class NettyHandler extends ChannelInboundHandlerAdapter {
+
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
@@ -36,10 +35,9 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
                 Map.Entry<String, String> next = iterator.next();
                 headers.put(next.getKey(), next.getValue());
             }
-            String requestContent = fullHttpRequest.content().toString(CharsetUtil.UTF_8);
-            Map<String, String> body = getRequestBody(fullHttpRequest);
+            String body = fullHttpRequest.content().toString(CharsetUtil.UTF_8);
             HttpController bean = SpringBeanUtil.getBean(HttpController.class);
-            String result = bean.handle(method, uri, headers, requestContent, body);
+            String result = bean.handle(method, uri, headers, body);
             ByteBuf content = Unpooled.copiedBuffer(result, CharsetUtil.UTF_8);
             DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, content);
             response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json");
@@ -56,19 +54,6 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         ctx.close();
-    }
-
-    private Map<String, String> getRequestBody(FullHttpRequest request) {
-        HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(new DefaultHttpDataFactory(false), request);
-        List<InterfaceHttpData> httpPostData = decoder.getBodyHttpDatas();
-        Map<String, String> params = new HashMap<>();
-        for (InterfaceHttpData data : httpPostData) {
-            if (data.getHttpDataType() == InterfaceHttpData.HttpDataType.Attribute) {
-                MemoryAttribute attribute = (MemoryAttribute) data;
-                params.put(attribute.getName(), attribute.getValue());
-            }
-        }
-        return params;
     }
 
 }

@@ -28,8 +28,8 @@ public class HttpController {
     private SpringProperties springProperties;
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    public String handle(HttpMethod method, String uri, Map<String, String> headers, String requestContent, Map<String, String> body) {
-        System.out.println(String.format("接入新请求：method：%s，uri：%s，headers：%s，content：%s，body：%s", method, uri, headers, requestContent, body));
+    public String handle(HttpMethod method, String uri, Map<String, String> headers, String body) {
+        System.out.println(String.format("接入新请求：method：%s，uri：%s，headers：%s，body：%s", method, uri, headers, body));
         String result = null;
         JsonFileObject jsonFileObject = jsonFileService.getObjByUri(uri);
         //全局
@@ -44,28 +44,43 @@ public class HttpController {
         switch (baffleMode) {
             case FILE:
                 if (jsonFileObject == null) {
-                    result = forwardService.forward(method, uri, headers, requestContent, body);
+                    System.out.println("文件中未找到，请求后端获取数据");
+                    result = forwardService.forward(method, uri, headers, body);
                 } else {
                     result = getFileMessage(jsonFileObject);
+                    System.out.println("文件中存在，返回结果 -> " + result);
                 }
                 break;
             case SERVICE:
-                result = forwardService.forward(method, uri, headers, requestContent, body);
+                result = forwardService.forward(method, uri, headers, body);
                 if (result == null) {
+                    System.out.println("后端服务未成功返回，寻找文件数据");
                     result = getFileMessage(jsonFileObject);
+                    System.out.println("文件中存在，返回结果 -> " + result);
                 }
                 break;
             case ONLY_FILE:
                 if (jsonFileObject == null) {
+                    System.out.println("文件中未找到，请求失败");
                     break;
                 } else {
                     result = getFileMessage(jsonFileObject);
+                    System.out.println("文件中存在，返回结果 -> " + result);
                 }
                 break;
             case ONLY_SERVICE:
-                result = forwardService.forward(method, uri, headers, requestContent, body);
+                result = forwardService.forward(method, uri, headers, body);
+                System.out.println("后端服务返回 -> " + result);
                 break;
             default:
+                result = getFileMessage(jsonFileObject);
+                if (result == null) {
+                    System.out.println("文件中未找到，请求后端获取数据");
+                    result = forwardService.forward(method, uri, headers, body);
+                    System.out.println("后端服务返回 -> " + result);
+                } else {
+                    System.out.println("文件中存在，返回结果 -> " + result);
+                }
                 break;
         }
         return result;

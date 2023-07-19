@@ -15,6 +15,12 @@ public class SpringProperties {
     @Value("${baffle.global.mode}")
     private String baffleMode;
 
+    @Value("${baffle.forward.connect.timeout}")
+    private String forwardConnectTimeout;
+
+    @Value("${baffle.forward.read.timeout}")
+    private String forwardReadTimeout;
+
     public String[] getForwardAddress() {
         return forwardAddress;
     }
@@ -29,5 +35,21 @@ public class SpringProperties {
 
     public void setBaffleMode(String baffleMode) {
         this.baffleMode = baffleMode;
+    }
+
+    public int getForwardConnectTimeout() {
+        return forwardConnectTimeout == null ? 5000 : Integer.parseInt(forwardConnectTimeout);
+    }
+
+    public void setForwardConnectTimeout(String forwardConnectTimeout) {
+        this.forwardConnectTimeout = forwardConnectTimeout;
+    }
+
+    public int getForwardReadTimeout() {
+        return forwardReadTimeout == null ? 5000 : Integer.parseInt(forwardReadTimeout);
+    }
+
+    public void setForwardReadTimeout(String forwardReadTimeout) {
+        this.forwardReadTimeout = forwardReadTimeout;
     }
 }
