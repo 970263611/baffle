@@ -1,0 +1,29 @@
+[
+  {
+    "uri": "/a",
+    "type": "get",
+    "result": {
+      "a": 1,
+      "b": "abc"
+    }
+  },
+  {
+    "uri": "/b",
+    "type": "get",
+    "result": [
+      {
+        "a": 1,
+        "b": "abc1"
+      },
+      {
+        "a": 2,
+        "b": "abc2"
+      }
+    ]
+  },
+  {
+    "uri": "/c",
+    "type": "get",
+    "result": "[{\"abc\":\"aaa\"}]"
+  }
+]
