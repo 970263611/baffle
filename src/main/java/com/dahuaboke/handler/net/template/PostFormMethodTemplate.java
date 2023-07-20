@@ -14,14 +14,13 @@ import java.util.Map;
  * @time 2023/7/19 21:57
  */
 @Component
-public class PostFormTemplate extends AbstractTemplate {
+public class PostFormMethodTemplate extends AbstractMethodTemplate {
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Override
-    Request forward(String url, Map<String, String> headers, String body) throws JsonProcessingException {
-        Request.Builder builder = new Request.Builder();
+    Request forward(Request.Builder builder, String url, String body) throws JsonProcessingException {
         FormBody.Builder builderPostForm = new FormBody.Builder();
         if (body != null) {
             Map<String, String> bodyMap = objectMapper.readValue(body, Map.class);

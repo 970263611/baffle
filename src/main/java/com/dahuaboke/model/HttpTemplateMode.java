@@ -6,6 +6,6 @@ package com.dahuaboke.model;
  */
 public enum HttpTemplateMode {
     GET,
-    POST_BODY,
+    POST_JSON,
     POST_FORM
 }

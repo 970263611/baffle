@@ -3,6 +3,7 @@ package com.dahuaboke.spring;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.context.annotation.*;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.io.support.DefaultPropertySourceFactory;
 import org.springframework.core.io.support.EncodedResource;
@@ -30,6 +31,7 @@ public class SpringConfig extends DefaultPropertySourceFactory {
     }
 
     @Bean
+    @Order(value = 1)
     public ObjectMapper objectMapper(){
         return new ObjectMapper();
     }

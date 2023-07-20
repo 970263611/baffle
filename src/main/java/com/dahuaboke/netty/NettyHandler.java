@@ -10,10 +10,6 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.CharsetUtil;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 /**
  * @author dahua
  * @time 2023/7/17 10:01
@@ -24,23 +20,14 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof FullHttpRequest) {
             FullHttpRequest fullHttpRequest = (FullHttpRequest) msg;
-            HttpMethod method = fullHttpRequest.getMethod();
-            String uri = fullHttpRequest.getUri();
-            Map<String, String> headers = new HashMap();
-            Iterator<Map.Entry<String, String>> iterator = fullHttpRequest.headers().iterator();
-            while (iterator.hasNext()) {
-                Map.Entry<String, String> next = iterator.next();
-                headers.put(next.getKey(), next.getValue());
-            }
-            String body = fullHttpRequest.content().toString(CharsetUtil.UTF_8);
-            HttpController bean = SpringBeanUtil.getBean(HttpController.class);
-            String result = bean.handle(method, uri, headers, body);
+            HttpController httpController = SpringBeanUtil.getBean(HttpController.class);
+            String result = httpController.handle(fullHttpRequest);
             ByteBuf content = Unpooled.copiedBuffer(result, CharsetUtil.UTF_8);
             DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, content);
             response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json");
             response.headers().set(HttpHeaderNames.CONTENT_LENGTH, content.readableBytes());
             ctx.writeAndFlush(response);
-        } else if(msg instanceof WebSocketFrame) {
+        } else if (msg instanceof WebSocketFrame) {
 
         }
     }

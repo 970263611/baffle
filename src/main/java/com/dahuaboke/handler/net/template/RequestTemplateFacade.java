@@ -16,19 +16,19 @@ import java.util.Map;
 public class RequestTemplateFacade {
 
     @Autowired
-    private GetTemplate getTemplate;
+    private GetMethodTemplate getTemplate;
     @Autowired
-    private PostBodyTemplate postBodyTemplate;
+    private PostJsonMethodTemplate postJsonTemplate;
     @Autowired
-    private PostFormTemplate postFormTemplate;
+    private PostFormMethodTemplate postFormTemplate;
 
     public void exec(String url, HttpTemplateMode httpTemplateMode, Map<String, String> headers, String body, RequestCallBack requestCallBack) throws JsonProcessingException {
         switch (httpTemplateMode) {
             case GET:
                 getTemplate.exec(url, headers, body, requestCallBack);
                 break;
-            case POST_BODY:
-                postBodyTemplate.exec(url, headers, body, requestCallBack);
+            case POST_JSON:
+                postJsonTemplate.exec(url, headers, body, requestCallBack);
                 break;
             case POST_FORM:
                 postFormTemplate.exec(url, headers, body, requestCallBack);

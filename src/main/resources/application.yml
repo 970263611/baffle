@@ -1,11 +1,11 @@
 baffle:
-  datafile:
-    name: data.json
+  data:
+    filename: /data.json
   forward:
-    address: 20.208.28.73:9021
+    address: 20.208.28.73:9021,12.21.1.1:1000
     connect:
-      timeout: 5000
+      timeout: 3000
     read:
-      timeout: 5000
+      timeout: 3000
   global:
     mode: file

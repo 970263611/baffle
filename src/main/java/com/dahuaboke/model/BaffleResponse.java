@@ -32,4 +32,9 @@ public class BaffleResponse {
     public void setResponse(String response) {
         this.response = response;
     }
+
+    @Override
+    public String toString() {
+        return "{success=" + success + ", response='" + response + '}';
+    }
 }

@@ -1,18 +1,25 @@
 package com.dahuaboke.handler.controller;
 
-import com.dahuaboke.handler.service.ProxyService;
+import com.dahuaboke.handler.mode.FileModeTemplate;
+import com.dahuaboke.handler.mode.OnlyFileModeTemplate;
+import com.dahuaboke.handler.mode.OnlyProxyModeTemplate;
+import com.dahuaboke.handler.mode.ProxyModeTemplate;
 import com.dahuaboke.handler.service.FileService;
 import com.dahuaboke.model.BaffleMode;
 import com.dahuaboke.model.HttpTemplateMode;
 import com.dahuaboke.model.JsonFileObject;
 import com.dahuaboke.spring.SpringProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
+import io.netty.util.CharsetUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @author dahua
@@ -24,20 +31,42 @@ public class HttpController {
     @Autowired
     private FileService fileService;
     @Autowired
-    private ProxyService proxyService;
-    @Autowired
     private SpringProperties springProperties;
     @Autowired
-    private ObjectMapper objectMapper;
+    private FileModeTemplate fileModeTemplate;
+    @Autowired
+    private ProxyModeTemplate proxyModeTemplate;
+    @Autowired
+    private OnlyFileModeTemplate onlyFileModeTemplate;
+    @Autowired
+    private OnlyProxyModeTemplate onlyProxyModeTemplate;
 
-    public String handle(HttpTemplateMode httpTemplateMode, String uri, Map<String, String> headers, String body) {
-        System.out.println(String.format("接入新请求：method：%s，uri：%s，headers：%s，body：%s", httpTemplateMode, uri, headers, body));
-        String result = null;
+    public String handle(FullHttpRequest fullHttpRequest) {
+        HttpMethod method = fullHttpRequest.getMethod();
+        String uri = fullHttpRequest.getUri();
+        Map<String, String> headers = new HashMap();
+        Iterator<Map.Entry<String, String>> iterator = fullHttpRequest.headers().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> next = iterator.next();
+            headers.put(next.getKey(), next.getValue());
+        }
+        String body = fullHttpRequest.content().toString(CharsetUtil.UTF_8);
+        try {
+            HttpTemplateMode httpTemplateMode = getHttpTemplateMode(method, headers);
+            if (httpTemplateMode == null) {
+                return "该请求方式暂不支持";
+            }
+            return handle(httpTemplateMode, uri, headers, body);
+        } catch (Exception e) {
+            return e.getCause().toString();
+        }
+    }
+
+    public String handle(HttpTemplateMode httpTemplateMode, String uri, Map<String, String> headers, String body) throws ExecutionException, InterruptedException, JsonProcessingException {
+        String result;
         JsonFileObject jsonFileObject = fileService.getObjByUri(uri);
-        //全局
         BaffleMode baffleMode = springProperties.getBaffleMode();
         if (jsonFileObject != null) {
-            //覆盖的
             BaffleMode mode = jsonFileObject.getMode();
             if (mode != null) {
                 baffleMode = mode;
@@ -45,58 +74,69 @@ public class HttpController {
         }
         switch (baffleMode) {
             case FILE:
-                if (jsonFileObject == null) {
-                    System.out.println("文件中未找到，请求后端获取数据");
-                    result = proxyService.forward(httpTemplateMode, uri, headers, body);
-                } else {
-                    result = getFileMessage(jsonFileObject);
-                    System.out.println("文件中存在，返回结果 -> " + result);
-                }
+                result = fileModeTemplate.readData(jsonFileObject, httpTemplateMode, uri, headers, body);
                 break;
-            case SERVICE:
-                result = proxyService.forward(httpTemplateMode, uri, headers, body);
-                if (result == null) {
-                    System.out.println("后端服务未成功返回，寻找文件数据");
-                    result = getFileMessage(jsonFileObject);
-                    System.out.println("文件中存在，返回结果 -> " + result);
-                }
+            case PROXY:
+                result = proxyModeTemplate.readData(jsonFileObject, httpTemplateMode, uri, headers, body);
                 break;
             case ONLY_FILE:
-                if (jsonFileObject == null) {
-                    System.out.println("文件中未找到，请求失败");
-                    break;
-                } else {
-                    result = getFileMessage(jsonFileObject);
-                    System.out.println("文件中存在，返回结果 -> " + result);
-                }
+                result = onlyFileModeTemplate.readData(jsonFileObject, httpTemplateMode, uri, headers, body);
                 break;
-            case ONLY_SERVICE:
-                result = proxyService.forward(httpTemplateMode, uri, headers, body);
-                System.out.println("后端服务返回 -> " + result);
+            case ONLY_PROXY:
+                result = onlyProxyModeTemplate.readData(jsonFileObject, httpTemplateMode, uri, headers, body);
                 break;
             default:
-                result = getFileMessage(jsonFileObject);
-                if (result == null) {
-                    System.out.println("文件中未找到，请求后端获取数据");
-                    result = proxyService.forward(httpTemplateMode, uri, headers, body);
-                    System.out.println("后端服务返回 -> " + result);
-                } else {
-                    System.out.println("文件中存在，返回结果 -> " + result);
-                }
+                result = fileModeTemplate.readData(jsonFileObject, httpTemplateMode, uri, headers, body);
                 break;
         }
         return result;
     }
 
-    public String getFileMessage(JsonFileObject jsonFileObject) {
-        try {
-            return objectMapper.writeValueAsString(jsonFileObject.getResult());
-        } catch (JsonProcessingException e) {
-            return e.getMessage();
+    private HttpTemplateMode getHttpTemplateMode(HttpMethod method, Map<String, String> headers) {
+        HttpTemplateMode httpTemplateMode = null;
+        switch (method.name()) {
+            case "GET":
+                httpTemplateMode = HttpTemplateMode.GET;
+                break;
+            case "POST":
+                String contentType = headers.get("Content-Type");
+                switch (contentType) {
+                    case "multipart/form-data":
+                        httpTemplateMode = HttpTemplateMode.POST_FORM;
+                        break;
+                    case "application/json":
+                        httpTemplateMode = HttpTemplateMode.POST_JSON;
+                        break;
+                    case "application/x-www-form-urlencoded":
+                        break;
+                    case "text/plain":
+                        break;
+                    case "application/javascript":
+                        break;
+                    case "text/xml":
+                        break;
+                    case "text/html":
+                        break;
+                    default:
+                        break;
+                }
+            case "PUT":
+                break;
+            case "PATCH":
+                break;
+            case "OPTIONS":
+                break;
+            case "HEAD":
+                break;
+            case "DELETE":
+                break;
+            case "TRACE":
+                break;
+            case "CONNECT":
+                break;
+            default:
+                break;
         }
-    }
-
-    public String getProxyMessage(){
-
+        return httpTemplateMode;
     }
 }

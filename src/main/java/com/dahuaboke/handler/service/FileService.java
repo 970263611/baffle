@@ -4,10 +4,8 @@ import com.dahuaboke.model.JsonFileObject;
 import com.dahuaboke.spring.SpringProperties;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -19,30 +17,28 @@ import java.util.concurrent.atomic.AtomicReference;
 @Component
 public class FileService {
 
-    @Autowired
-    private ObjectMapper objectMapper;
     private List<Map<String, JsonFileObject>> jsonFileObjectList = new ArrayList();
 
-    public FileService(SpringProperties springProperties) {
-        String[] datafileName = springProperties.getDatafileName();
-        loadFile(datafileName);
+    public FileService(SpringProperties springProperties, ObjectMapper objectMapper) {
+        String[] datafileName = springProperties.getDataFilename();
+        loadFile(datafileName, objectMapper);
     }
 
-    public void loadFile(String[] filePaths) {
+    public void loadFile(String[] filePaths, ObjectMapper objectMapper) {
         Arrays.stream(filePaths).forEach(f -> {
-            loadFile(f);
+            loadFile(f, objectMapper);
         });
     }
 
-    public void loadFile(String filePath) {
+    public void loadFile(String filePath, ObjectMapper objectMapper) {
         Map<String, JsonFileObject> jsonMap = new HashMap();
         InputStream inputStream = TypeReference.class.getResourceAsStream(filePath);
-        List<JsonFileObject> jsons = null;
+        List<JsonFileObject> jsons;
         try {
             jsons = objectMapper.readValue(inputStream, new TypeReference<List<JsonFileObject>>() {
             });
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            return;
         }
         jsons.forEach(j -> {
             String url = j.getUri();
@@ -55,7 +51,7 @@ public class FileService {
     }
 
     public JsonFileObject getObjByUri(String uri) {
-        AtomicReference<JsonFileObject> jsonFileObject = null;
+        AtomicReference<JsonFileObject> jsonFileObject = new AtomicReference();
         jsonFileObjectList.forEach(l -> {
             jsonFileObject.set(l.get(uri));
         });

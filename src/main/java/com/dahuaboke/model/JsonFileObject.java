@@ -11,7 +11,7 @@ public class JsonFileObject {
     private String uri;
     private HttpMethod type;
     private BaffleMode mode;
-    private Object result;
+    private Object response;
 
     public JsonFileObject() {
     }
@@ -40,11 +40,11 @@ public class JsonFileObject {
         this.mode = mode;
     }
 
-    public Object getResult() {
-        return result;
+    public Object getResponse() {
+        return response;
     }
 
-    public void setResult(Object result) {
-        this.result = result;
+    public void setResponse(Object response) {
+        this.response = response;
     }
 }

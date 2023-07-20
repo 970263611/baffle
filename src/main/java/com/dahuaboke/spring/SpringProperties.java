@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
  */
 public class SpringProperties {
 
-    @Value("${baffle.datafile.name}")
-    private String[] datafileName;
+    @Value("${baffle.data.filename}")
+    private String[] dataFilename;
 
     @Value("${baffle.forward.address}")
     private String[] forwardAddress;
@@ -24,12 +24,12 @@ public class SpringProperties {
     @Value("${baffle.forward.read.timeout}")
     private String forwardReadTimeout;
 
-    public String[] getDatafileName() {
-        return datafileName;
+    public String[] getDataFilename() {
+        return dataFilename;
     }
 
-    public void setDatafileName(String[] datafileName) {
-        this.datafileName = datafileName;
+    public void setDataFilename(String[] dataFilename) {
+        this.dataFilename = dataFilename;
     }
 
     public String[] getForwardAddress() {
@@ -49,7 +49,7 @@ public class SpringProperties {
     }
 
     public int getForwardConnectTimeout() {
-        return forwardConnectTimeout == null ? 5000 : Integer.parseInt(forwardConnectTimeout);
+        return forwardConnectTimeout == null ? 3000 : Integer.parseInt(forwardConnectTimeout);
     }
 
     public void setForwardConnectTimeout(String forwardConnectTimeout) {
@@ -57,7 +57,7 @@ public class SpringProperties {
     }
 
     public int getForwardReadTimeout() {
-        return forwardReadTimeout == null ? 5000 : Integer.parseInt(forwardReadTimeout);
+        return forwardReadTimeout == null ? 3000 : Integer.parseInt(forwardReadTimeout);
     }
 
     public void setForwardReadTimeout(String forwardReadTimeout) {

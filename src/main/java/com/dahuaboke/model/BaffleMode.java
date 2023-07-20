@@ -7,9 +7,9 @@ package com.dahuaboke.model;
 public enum BaffleMode {
 
     FILE,
-    SERVICE,
+    PROXY,
     ONLY_FILE,
-    ONLY_SERVICE;
+    ONLY_PROXY;
 
     public static BaffleMode getBaffleMode(String mode) {
         if (mode == null) {

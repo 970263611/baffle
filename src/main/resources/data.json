@@ -2,7 +2,7 @@
   {
     "uri": "/a",
     "type": "get",
-    "result": {
+    "response": {
       "a": 1,
       "b": "abc"
     }
@@ -10,7 +10,7 @@
   {
     "uri": "/b",
     "type": "get",
-    "result": [
+    "response": [
       {
         "a": 1,
         "b": "abc1"
@@ -24,6 +24,6 @@
   {
     "uri": "/c",
     "type": "get",
-    "result": "[{\"abc\":\"aaa\"}]"
+    "response": "[{\"abc\":\"aaa\"}]"
   }
 ]
