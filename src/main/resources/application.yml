@@ -2,7 +2,7 @@ baffle:
   data:
     filename: /data.json
   forward:
-    address: 20.208.28.73:9021,12.21.1.1:1000
+    address: 20.208.28.73:9021,20.208.28.131:9021,20.208.27.147:9021,20.208.14.186:9021
     connect:
       timeout: 3000
     read:
