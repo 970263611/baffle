@@ -31,11 +31,7 @@ public class HttpController {
     private ObjectMapper objectMapper;
 
     public String handle(HttpTemplateMode httpTemplateMode, String uri, Map<String, String> headers, String body) {
-        
-    }
-
-    public String handle(HttpMethod method, String uri, Map<String, String> headers, String body) {
-        System.out.println(String.format("接入新请求：method：%s，uri：%s，headers：%s，body：%s", method, uri, headers, body));
+        System.out.println(String.format("接入新请求：method：%s，uri：%s，headers：%s，body：%s", httpTemplateMode, uri, headers, body));
         String result = null;
         JsonFileObject jsonFileObject = fileService.getObjByUri(uri);
         //全局
@@ -51,14 +47,14 @@ public class HttpController {
             case FILE:
                 if (jsonFileObject == null) {
                     System.out.println("文件中未找到，请求后端获取数据");
-                    result = proxyService.forward(method, uri, headers, body);
+                    result = proxyService.forward(httpTemplateMode, uri, headers, body);
                 } else {
                     result = getFileMessage(jsonFileObject);
                     System.out.println("文件中存在，返回结果 -> " + result);
                 }
                 break;
             case SERVICE:
-                result = proxyService.forward(method, uri, headers, body);
+                result = proxyService.forward(httpTemplateMode, uri, headers, body);
                 if (result == null) {
                     System.out.println("后端服务未成功返回，寻找文件数据");
                     result = getFileMessage(jsonFileObject);
@@ -75,14 +71,14 @@ public class HttpController {
                 }
                 break;
             case ONLY_SERVICE:
-                result = proxyService.forward(method, uri, headers, body);
+                result = proxyService.forward(httpTemplateMode, uri, headers, body);
                 System.out.println("后端服务返回 -> " + result);
                 break;
             default:
                 result = getFileMessage(jsonFileObject);
                 if (result == null) {
                     System.out.println("文件中未找到，请求后端获取数据");
-                    result = proxyService.forward(method, uri, headers, body);
+                    result = proxyService.forward(httpTemplateMode, uri, headers, body);
                     System.out.println("后端服务返回 -> " + result);
                 } else {
                     System.out.println("文件中存在，返回结果 -> " + result);
@@ -98,5 +94,9 @@ public class HttpController {
         } catch (JsonProcessingException e) {
             return e.getMessage();
         }
+    }
+
+    public String getProxyMessage(){
+
     }
 }

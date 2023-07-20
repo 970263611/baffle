@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
  */
 public class SpringProperties {
 
+    @Value("${baffle.datafile.name}")
+    private String[] datafileName;
+
     @Value("${baffle.forward.address}")
     private String[] forwardAddress;
 
@@ -20,6 +23,14 @@ public class SpringProperties {
 
     @Value("${baffle.forward.read.timeout}")
     private String forwardReadTimeout;
+
+    public String[] getDatafileName() {
+        return datafileName;
+    }
+
+    public void setDatafileName(String[] datafileName) {
+        this.datafileName = datafileName;
+    }
 
     public String[] getForwardAddress() {
         return forwardAddress;

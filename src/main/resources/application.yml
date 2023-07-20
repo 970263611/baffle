@@ -1,4 +1,6 @@
 baffle:
+  datafile:
+    name: data.json
   forward:
     address: 20.208.28.73:9021
     connect:
