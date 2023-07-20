@@ -1,8 +1,6 @@
 package com.dahuaboke.spring;
 
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.core.env.ConfigurableEnvironment;
 
 /**
  * @author dahua
@@ -12,6 +10,5 @@ public class SpringStarter {
 
     public void run() {
         new AnnotationConfigApplicationContext(SpringConfig.class);
-        ConfigurableEnvironment environment = null;
     }
 }

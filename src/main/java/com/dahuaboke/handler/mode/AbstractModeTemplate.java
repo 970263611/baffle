@@ -1,6 +1,7 @@
 package com.dahuaboke.handler.mode;
 
 import com.dahuaboke.handler.service.ProxyService;
+import com.dahuaboke.model.BaffleConst;
 import com.dahuaboke.model.BaffleResponse;
 import com.dahuaboke.model.HttpTemplateMode;
 import com.dahuaboke.model.JsonFileObject;
@@ -9,7 +10,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -38,22 +41,32 @@ public abstract class AbstractModeTemplate {
 
     protected BaffleResponse getProxyMessage(HttpTemplateMode httpTemplateMode, String uri, Map<String, String> headers, String body) throws ExecutionException, InterruptedException, JsonProcessingException {
         Map<String, String> result = new HashMap();
-        String[] forwardAddress = springProperties.getForwardAddress();
+        List<String> forwardAddress = Arrays.asList(springProperties.getForwardAddress());
+        if (headers.containsKey(BaffleConst.BAFFLE_APPOINT_IP) || headers.containsKey(BaffleConst.BAFFLE_APPOINT_IP.toUpperCase())) {
+            String appointIp = headers.get(BaffleConst.BAFFLE_APPOINT_IP);
+            appointIp = appointIp == null ? headers.get(BaffleConst.BAFFLE_APPOINT_IP.toUpperCase()) : appointIp;
+            if (forwardAddress.contains(appointIp)) {
+                return getProxyMessage(appointIp, uri, httpTemplateMode, headers, body);
+            }
+        }
         for (String host : forwardAddress) {
-            if (!host.startsWith("http://") && !host.startsWith("https://")) {
-                host = "http://" + host;
-            }
-            if (host.endsWith("/")) {
-                host = host.substring(0, host.length() - 1);
-            }
-            String url = host + uri;
-            BaffleResponse proxy = proxyService.proxy(url, httpTemplateMode, headers, body);
-            if (proxy.isSuccess()) {
-                return proxy;
+            BaffleResponse proxyMessage = getProxyMessage(host, uri, httpTemplateMode, headers, body);
+            if (proxyMessage.isSuccess()) {
+                return proxyMessage;
             } else {
-                result.put(url, proxy.getResponse());
+                result.put(host + uri, proxyMessage.getResponse());
             }
         }
         return new BaffleResponse(false, "请求失败，错误信息 -> " + objectMapper.writeValueAsString(result));
+    }
+
+    private BaffleResponse getProxyMessage(String host, String uri, HttpTemplateMode httpTemplateMode, Map<String, String> headers, String body) throws ExecutionException, InterruptedException, JsonProcessingException {
+        if (!host.startsWith(BaffleConst.HTTP_PREFIX) && !host.startsWith(BaffleConst.HTTPS_PREFIX)) {
+            host = BaffleConst.HTTP_PREFIX + host;
+        }
+        if (host.endsWith(BaffleConst.SYMBOL_SLASH)) {
+            host = host.substring(0, host.length() - 1);
+        }
+        return proxyService.proxy(host + uri, httpTemplateMode, headers, body);
     }
 }

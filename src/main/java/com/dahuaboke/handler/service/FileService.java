@@ -1,5 +1,6 @@
 package com.dahuaboke.handler.service;
 
+import com.dahuaboke.model.BaffleConst;
 import com.dahuaboke.model.JsonFileObject;
 import com.dahuaboke.spring.SpringProperties;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -42,8 +43,8 @@ public class FileService {
         }
         jsons.forEach(j -> {
             String url = j.getUri();
-            if (!url.startsWith("/")) {
-                url = "/" + url;
+            if (!url.startsWith(BaffleConst.SYMBOL_SLASH)) {
+                url = BaffleConst.SYMBOL_SLASH + url;
             }
             jsonMap.put(url, j);
         });

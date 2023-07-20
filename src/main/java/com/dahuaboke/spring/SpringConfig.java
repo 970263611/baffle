@@ -1,8 +1,12 @@
 package com.dahuaboke.spring;
 
+import com.dahuaboke.model.BaffleConst;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.io.support.DefaultPropertySourceFactory;
@@ -31,8 +35,8 @@ public class SpringConfig extends DefaultPropertySourceFactory {
     }
 
     @Bean
-    @Order(value = 1)
-    public ObjectMapper objectMapper(){
+    @Order
+    public ObjectMapper objectMapper() {
         return new ObjectMapper();
     }
 
@@ -41,7 +45,7 @@ public class SpringConfig extends DefaultPropertySourceFactory {
         String sourceName = name != null ? name : resource.getResource().getFilename();
         if (!resource.getResource().exists()) {
             return new PropertiesPropertySource(sourceName, new Properties());
-        } else if (sourceName.endsWith(".yml") || sourceName.endsWith(".yaml")) {
+        } else if (sourceName.endsWith(BaffleConst.SUFFIX_YML) || sourceName.endsWith(BaffleConst.SUFFIX_YAML)) {
             Properties propertiesFromYaml = loadYml(resource);
             return new PropertiesPropertySource(sourceName, propertiesFromYaml);
         } else {
@@ -49,7 +53,7 @@ public class SpringConfig extends DefaultPropertySourceFactory {
         }
     }
 
-    private Properties loadYml(EncodedResource resource) throws IOException {
+    private Properties loadYml(EncodedResource resource) {
         YamlPropertiesFactoryBean factory = new YamlPropertiesFactoryBean();
         factory.setResources(resource.getResource());
         factory.afterPropertiesSet();
