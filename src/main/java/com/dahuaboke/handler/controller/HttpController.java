@@ -3,6 +3,7 @@ package com.dahuaboke.handler.controller;
 import com.dahuaboke.handler.service.ProxyService;
 import com.dahuaboke.handler.service.FileService;
 import com.dahuaboke.model.BaffleMode;
+import com.dahuaboke.model.HttpTemplateMode;
 import com.dahuaboke.model.JsonFileObject;
 import com.dahuaboke.spring.SpringProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -26,7 +27,12 @@ public class HttpController {
     private ProxyService proxyService;
     @Autowired
     private SpringProperties springProperties;
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    public String handle(HttpTemplateMode httpTemplateMode, String uri, Map<String, String> headers, String body) {
+        
+    }
 
     public String handle(HttpMethod method, String uri, Map<String, String> headers, String body) {
         System.out.println(String.format("接入新请求：method：%s，uri：%s，headers：%s，body：%s", method, uri, headers, body));

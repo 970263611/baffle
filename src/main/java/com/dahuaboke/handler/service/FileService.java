@@ -3,6 +3,7 @@ package com.dahuaboke.handler.service;
 import com.dahuaboke.model.JsonFileObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -18,10 +19,11 @@ import java.util.Map;
 @Component
 public class FileService {
 
+    @Autowired
+    private ObjectMapper objectMapper;
     private Map<String, JsonFileObject> jsonMap = new HashMap();
 
     public FileService() {
-        ObjectMapper objectMapper = new ObjectMapper();
         InputStream inputStream = TypeReference.class.getResourceAsStream("/data.json");
         try {
             List<JsonFileObject> jsons = objectMapper.readValue(inputStream, new TypeReference<List<JsonFileObject>>() {

@@ -1,5 +1,6 @@
 package com.dahuaboke.spring;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.PropertiesPropertySource;
@@ -26,6 +27,11 @@ public class SpringConfig extends DefaultPropertySourceFactory {
     @Bean
     public SpringProperties springProperties() {
         return new SpringProperties();
+    }
+
+    @Bean
+    public ObjectMapper objectMapper(){
+        return new ObjectMapper();
     }
 
     @Override

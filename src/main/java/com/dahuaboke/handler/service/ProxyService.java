@@ -1,7 +1,12 @@
 package com.dahuaboke.handler.service;
 
 import com.dahuaboke.handler.net.HttpClient;
+import com.dahuaboke.handler.net.RequestCallBack;
+import com.dahuaboke.handler.net.template.RequestTemplateFacade;
+import com.dahuaboke.model.BaffleResponse;
+import com.dahuaboke.model.HttpTemplateMode;
 import com.dahuaboke.spring.SpringProperties;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.netty.handler.codec.http.HttpMethod;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +15,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -19,8 +25,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 public class ProxyService {
 
-    public String
+    @Autowired
+    private RequestTemplateFacade requestTemplateFacade;
 
+    public BaffleResponse proxy(String url, HttpTemplateMode httpTemplateMode, Map<String, String> headers, String body) throws ExecutionException, InterruptedException, JsonProcessingException {
+        CompletableFuture<BaffleResponse> completableFuture = new CompletableFuture();
+        RequestCallBack requestCallBack = (baffleResponse) -> completableFuture.complete(baffleResponse);
+        requestTemplateFacade.exec(url, httpTemplateMode, headers, body, requestCallBack);
+        return completableFuture.get();
+    }
 
     @Autowired
     private SpringProperties springProperties;
