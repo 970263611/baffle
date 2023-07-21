@@ -6,7 +6,7 @@ package com.dahuaboke.model;
  */
 public class BaffleConst {
 
-    public static final String BAFFLE_APPOINT_IP = "baffle-appoint-ip";
+    public static final String BAFFLE_APPOINT_IP_PORT = "baffle-appoint-ip-port";
 
     public static final String HTTP_PREFIX = "http://";
 

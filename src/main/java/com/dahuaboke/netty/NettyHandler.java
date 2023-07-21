@@ -1,6 +1,7 @@
 package com.dahuaboke.netty;
 
 import com.dahuaboke.handler.controller.HttpController;
+import com.dahuaboke.handler.controller.WebSocketController;
 import com.dahuaboke.spring.SpringBeanUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -28,12 +29,15 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
             response.headers().set(HttpHeaderNames.CONTENT_LENGTH, content.readableBytes());
             ctx.writeAndFlush(response);
         } else if (msg instanceof WebSocketFrame) {
-
+            WebSocketFrame webSocketFrame = (WebSocketFrame) msg;
+            WebSocketController webSocketController = SpringBeanUtil.getBean(WebSocketController.class);
+            String response = webSocketController.handle();
+            ctx.writeAndFlush(response);
         }
     }
 
     @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+    public void channelReadComplete(ChannelHandlerContext ctx) {
         ctx.flush();
     }
 

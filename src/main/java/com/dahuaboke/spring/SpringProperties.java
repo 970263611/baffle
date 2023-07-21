@@ -24,6 +24,9 @@ public class SpringProperties {
     @Value("${baffle.forward.read.timeout}")
     private String forwardReadTimeout;
 
+    @Value("${baffle.enable.inbound-links}")
+    private String enableInboundLinks;
+
     public String[] getDataFilename() {
         return dataFilename;
     }
@@ -62,5 +65,13 @@ public class SpringProperties {
 
     public void setForwardReadTimeout(String forwardReadTimeout) {
         this.forwardReadTimeout = forwardReadTimeout;
+    }
+
+    public boolean getEnableInboundLinks() {
+        return "true".equalsIgnoreCase(enableInboundLinks);
+    }
+
+    public void setEnableInboundLinks(String enableInboundLinks) {
+        this.enableInboundLinks = enableInboundLinks;
     }
 }

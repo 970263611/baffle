@@ -40,24 +40,29 @@ public abstract class AbstractModeTemplate {
     }
 
     protected BaffleResponse getProxyMessage(HttpTemplateMode httpTemplateMode, String uri, Map<String, String> headers, String body) throws ExecutionException, InterruptedException, JsonProcessingException {
-        Map<String, String> result = new HashMap();
         List<String> forwardAddress = Arrays.asList(springProperties.getForwardAddress());
-        if (headers.containsKey(BaffleConst.BAFFLE_APPOINT_IP) || headers.containsKey(BaffleConst.BAFFLE_APPOINT_IP.toUpperCase())) {
-            String appointIp = headers.get(BaffleConst.BAFFLE_APPOINT_IP);
-            appointIp = appointIp == null ? headers.get(BaffleConst.BAFFLE_APPOINT_IP.toUpperCase()) : appointIp;
-            if (forwardAddress.contains(appointIp)) {
-                return getProxyMessage(appointIp, uri, httpTemplateMode, headers, body);
+        String appointIpAndPort = headers.get(BaffleConst.BAFFLE_APPOINT_IP_PORT);
+        appointIpAndPort = appointIpAndPort == null ? headers.get(BaffleConst.BAFFLE_APPOINT_IP_PORT.toUpperCase()) : appointIpAndPort;
+        if (appointIpAndPort == null) {
+            Map<String, String> result = new HashMap();
+            for (String host : forwardAddress) {
+                BaffleResponse proxyMessage = getProxyMessage(host, uri, httpTemplateMode, headers, body);
+                if (proxyMessage.isSuccess()) {
+                    return proxyMessage;
+                } else {
+                    result.put(host + uri, proxyMessage.getResponse());
+                }
             }
-        }
-        for (String host : forwardAddress) {
-            BaffleResponse proxyMessage = getProxyMessage(host, uri, httpTemplateMode, headers, body);
-            if (proxyMessage.isSuccess()) {
-                return proxyMessage;
-            } else {
-                result.put(host + uri, proxyMessage.getResponse());
+            return new BaffleResponse(false, "请求失败，错误信息 -> " + objectMapper.writeValueAsString(result));
+        } else {
+            boolean enableInboundLinks = springProperties.getEnableInboundLinks();
+            if (!enableInboundLinks) {
+                if (!forwardAddress.contains(appointIpAndPort)) {
+                    return new BaffleResponse(false, "请求失败，请勿访问非法资源");
+                }
             }
+            return getProxyMessage(appointIpAndPort, uri, httpTemplateMode, headers, body);
         }
-        return new BaffleResponse(false, "请求失败，错误信息 -> " + objectMapper.writeValueAsString(result));
     }
 
     private BaffleResponse getProxyMessage(String host, String uri, HttpTemplateMode httpTemplateMode, Map<String, String> headers, String body) throws ExecutionException, InterruptedException, JsonProcessingException {
