@@ -2,12 +2,13 @@ package com.dahuaboke.handler.mode;
 
 import com.dahuaboke.handler.service.ProxyService;
 import com.dahuaboke.model.BaffleConst;
+import com.dahuaboke.model.BaffleMode;
 import com.dahuaboke.model.BaffleResponse;
-import com.dahuaboke.model.HttpTemplateMode;
 import com.dahuaboke.model.JsonFileObject;
 import com.dahuaboke.spring.SpringProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.netty.handler.codec.http.HttpMethod;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
@@ -29,7 +30,17 @@ public abstract class AbstractModeTemplate {
     @Autowired
     private SpringProperties springProperties;
 
-    public abstract String readData(JsonFileObject jsonFileObject, HttpTemplateMode httpTemplateMode, String uri, Map<String, String> headers, String body) throws ExecutionException, InterruptedException, JsonProcessingException;
+    public AbstractModeTemplate(ModeTemplateFacade modeTemplateFacade) {
+        this.register(modeTemplateFacade);
+    }
+
+    public abstract String readData(JsonFileObject jsonFileObject, HttpMethod method, String uri, Map<String, String> headers, String body) throws ExecutionException, InterruptedException, JsonProcessingException;
+
+    protected abstract BaffleMode baffleMode();
+
+    public void register(ModeTemplateFacade modeTemplateFacade) {
+        modeTemplateFacade.register(this, baffleMode());
+    }
 
     protected String getFileMessage(JsonFileObject jsonFileObject) {
         try {
@@ -39,18 +50,18 @@ public abstract class AbstractModeTemplate {
         }
     }
 
-    protected BaffleResponse getProxyMessage(HttpTemplateMode httpTemplateMode, String uri, Map<String, String> headers, String body) throws ExecutionException, InterruptedException, JsonProcessingException {
+    protected BaffleResponse getProxyMessage(HttpMethod method, String uri, Map<String, String> headers, String body) throws ExecutionException, InterruptedException, JsonProcessingException {
         Map<String, String> result = new HashMap();
         List<String> forwardAddress = Arrays.asList(springProperties.getForwardAddress());
         if (headers.containsKey(BaffleConst.BAFFLE_APPOINT_IP) || headers.containsKey(BaffleConst.BAFFLE_APPOINT_IP.toUpperCase())) {
             String appointIp = headers.get(BaffleConst.BAFFLE_APPOINT_IP);
             appointIp = appointIp == null ? headers.get(BaffleConst.BAFFLE_APPOINT_IP.toUpperCase()) : appointIp;
             if (forwardAddress.contains(appointIp)) {
-                return getProxyMessage(appointIp, uri, httpTemplateMode, headers, body);
+                return getProxyMessage(appointIp, uri, method, headers, body);
             }
         }
         for (String host : forwardAddress) {
-            BaffleResponse proxyMessage = getProxyMessage(host, uri, httpTemplateMode, headers, body);
+            BaffleResponse proxyMessage = getProxyMessage(host, uri, method, headers, body);
             if (proxyMessage.isSuccess()) {
                 return proxyMessage;
             } else {
@@ -60,13 +71,13 @@ public abstract class AbstractModeTemplate {
         return new BaffleResponse(false, "请求失败，错误信息 -> " + objectMapper.writeValueAsString(result));
     }
 
-    private BaffleResponse getProxyMessage(String host, String uri, HttpTemplateMode httpTemplateMode, Map<String, String> headers, String body) throws ExecutionException, InterruptedException, JsonProcessingException {
+    private BaffleResponse getProxyMessage(String host, String uri, HttpMethod method, Map<String, String> headers, String body) throws ExecutionException, InterruptedException, JsonProcessingException {
         if (!host.startsWith(BaffleConst.HTTP_PREFIX) && !host.startsWith(BaffleConst.HTTPS_PREFIX)) {
             host = BaffleConst.HTTP_PREFIX + host;
         }
         if (host.endsWith(BaffleConst.SYMBOL_SLASH)) {
             host = host.substring(0, host.length() - 1);
         }
-        return proxyService.proxy(host + uri, httpTemplateMode, headers, body);
+        return proxyService.proxy(host + uri, method, headers, body);
     }
 }

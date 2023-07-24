@@ -18,5 +18,7 @@ public class BaffleConst {
 
     public static final String SUFFIX_YML = ".yml";
 
+    public static final String FORM_SPLIT = "boundary=";
+
 
 }
