@@ -9,3 +9,5 @@ baffle:
       timeout: 3000
   global:
     mode: file
+  enable:
+    inbound-links: true
