@@ -4,7 +4,6 @@ import com.dahuaboke.handler.net.HttpClient;
 import com.dahuaboke.handler.net.RequestCallBack;
 import com.dahuaboke.model.BaffleResponse;
 import com.dahuaboke.model.HttpTemplateMode;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.netty.handler.codec.http.HttpMethod;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -30,14 +29,14 @@ public abstract class AbstractMethodTemplate {
         this.register(requestTemplateFacade);
     }
 
-    public void exec(String url, Map<String, String> headers, String body, RequestCallBack requestCallBack) throws JsonProcessingException {
+    public void exec(String url, Map<String, String> headers, String body, RequestCallBack requestCallBack) {
         Request.Builder builder = new Request.Builder();
         if (headers != null) {
             headers.forEach((k, v) -> {
                 builder.addHeader(k, v);
             });
         }
-        Request request = forward(builder, url, body);
+        Request request = forward(builder, url, headers, body);
         httpClient.getInstance().newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -51,7 +50,7 @@ public abstract class AbstractMethodTemplate {
         });
     }
 
-    abstract Request forward(Request.Builder builder, String url, String body) throws JsonProcessingException;
+    abstract Request forward(Request.Builder builder, String url, Map<String, String> headers, String body);
 
     protected abstract HttpMethod httpMethod();
 

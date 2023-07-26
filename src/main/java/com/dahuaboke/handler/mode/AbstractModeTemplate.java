@@ -80,7 +80,7 @@ public abstract class AbstractModeTemplate {
         }
     }
 
-    private BaffleResponse getProxyMessage(String host, String uri, HttpMethod method, Map<String, String> headers, String body) throws ExecutionException, InterruptedException, JsonProcessingException {
+    private BaffleResponse getProxyMessage(String host, String uri, HttpMethod method, Map<String, String> headers, String body) throws ExecutionException, InterruptedException {
         if (!host.startsWith(BaffleConst.HTTP_PREFIX) && !host.startsWith(BaffleConst.HTTPS_PREFIX)) {
             host = BaffleConst.HTTP_PREFIX + host;
         }

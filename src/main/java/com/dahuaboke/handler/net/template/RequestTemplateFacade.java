@@ -3,7 +3,6 @@ package com.dahuaboke.handler.net.template;
 import com.dahuaboke.handler.net.RequestCallBack;
 import com.dahuaboke.model.BaffleResponse;
 import com.dahuaboke.model.HttpTemplateMode;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.netty.handler.codec.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +20,7 @@ public class RequestTemplateFacade {
 
     private Map<HttpMethod, List<RegisterModel>> registerModeTemplate = new HashMap();
 
-    public void exec(String url, HttpMethod method, Map<String, String> headers, String body, RequestCallBack requestCallBack) throws JsonProcessingException {
+    public void exec(String url, HttpMethod method, Map<String, String> headers, String body, RequestCallBack requestCallBack) {
         List<RegisterModel> registerModels = registerModeTemplate.get(method);
         if (registerModels != null) {
             for (RegisterModel registerModel : registerModels) {

@@ -5,6 +5,8 @@ import io.netty.handler.codec.http.HttpMethod;
 import okhttp3.Request;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 /**
  * @author dahua
  * @time 2023/7/19 21:57
@@ -17,7 +19,7 @@ public class GetMethodTemplate extends AbstractMethodTemplate {
     }
 
     @Override
-    public Request forward(Request.Builder builder, String url, String body) {
+    public Request forward(Request.Builder builder, String url, Map<String, String> headers, String body) {
         return builder.get().url(url).build();
     }
 

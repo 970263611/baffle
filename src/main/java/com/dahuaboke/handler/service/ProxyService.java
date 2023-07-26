@@ -23,7 +23,7 @@ public class ProxyService {
     @Autowired
     private RequestTemplateFacade requestTemplateFacade;
 
-    public BaffleResponse proxy(String url, HttpMethod method, Map<String, String> headers, String body) throws ExecutionException, InterruptedException, JsonProcessingException {
+    public BaffleResponse proxy(String url, HttpMethod method, Map<String, String> headers, String body) throws ExecutionException, InterruptedException {
         System.out.println(String.format("转发请求：url：%s，method：%s，headers：%s，body：%s", url, method, headers, body));
         CompletableFuture<BaffleResponse> completableFuture = new CompletableFuture();
         RequestCallBack requestCallBack = (baffleResponse) -> {

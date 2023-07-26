@@ -6,6 +6,10 @@ import okhttp3.FormBody;
 import okhttp3.Request;
 import org.springframework.stereotype.Component;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.Map;
+
 /**
  * @author dahua
  * @time 2023/7/19 21:57
@@ -18,13 +22,13 @@ public class PostX3WFormMethodTemplate extends AbstractMethodTemplate {
     }
 
     @Override
-    Request forward(Request.Builder builder, String url, String body) {
+    Request forward(Request.Builder builder, String url, Map<String, String> headers, String body) {
         FormBody.Builder builderPostForm = new FormBody.Builder();
         if (body != null && !"".equals(body)) {
             String[] split = body.split("&");
             for (String s : split) {
                 String[] kv = s.split("=");
-                builderPostForm.add(kv[0], kv[1]);
+                builderPostForm.add(decode(kv[0]), decode(kv[1]));
             }
         }
         FormBody formBody = builderPostForm.build();
@@ -49,5 +53,19 @@ public class PostX3WFormMethodTemplate extends AbstractMethodTemplate {
     @Override
     protected String headerValue() {
         return "application/x-www-from-urlencoded";
+    }
+
+    private String decode(String str) {
+        try {
+            if (str == null) {
+                return null;
+            }
+            if (str.contains("%") || str.contains("+")) {
+                return URLDecoder.decode(str, "UTF-8");
+            }
+            return str;
+        } catch (UnsupportedEncodingException e) {
+            return null;
+        }
     }
 }
