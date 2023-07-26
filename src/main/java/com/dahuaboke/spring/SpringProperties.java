@@ -27,6 +27,9 @@ public class SpringProperties {
     @Value("${baffle.enable.inbound-links}")
     private String enableInboundLinks;
 
+    @Value("${baffle.data.check-method}")
+    private String dataCheckMethod;
+
     public String[] getDataFilename() {
         return dataFilename;
     }
@@ -73,5 +76,13 @@ public class SpringProperties {
 
     public void setEnableInboundLinks(String enableInboundLinks) {
         this.enableInboundLinks = enableInboundLinks;
+    }
+
+    public boolean getDataCheckMethod() {
+        return dataCheckMethod == null ? false : Boolean.parseBoolean(dataCheckMethod);
+    }
+
+    public void setDataCheckMethod(String dataCheckMethod) {
+        this.dataCheckMethod = dataCheckMethod;
     }
 }

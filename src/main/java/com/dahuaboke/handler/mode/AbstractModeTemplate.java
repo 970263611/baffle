@@ -44,6 +44,9 @@ public abstract class AbstractModeTemplate {
 
     protected String getFileMessage(JsonFileObject jsonFileObject) {
         try {
+            if (springProperties.getDataCheckMethod() && !jsonFileObject.getType().equals(HttpMethod.GET)) {
+                return "异常：请求方法不匹配";
+            }
             return objectMapper.writeValueAsString(jsonFileObject.getResponse());
         } catch (JsonProcessingException e) {
             return e.getMessage();
@@ -65,12 +68,12 @@ public abstract class AbstractModeTemplate {
                     result.put(host + uri, proxyMessage.getResponse());
                 }
             }
-            return new BaffleResponse(false, "请求失败，错误信息 -> " + objectMapper.writeValueAsString(result));
+            return new BaffleResponse(false, "异常：" + objectMapper.writeValueAsString(result));
         } else {
             boolean enableInboundLinks = springProperties.getEnableInboundLinks();
             if (!enableInboundLinks) {
                 if (!forwardAddress.contains(appointIpAndPort)) {
-                    return new BaffleResponse(false, "请求失败，请勿访问非法资源");
+                    return new BaffleResponse(false, "异常：请勿访问非法资源");
                 }
             }
             return getProxyMessage(appointIpAndPort, uri, method, headers, body);
