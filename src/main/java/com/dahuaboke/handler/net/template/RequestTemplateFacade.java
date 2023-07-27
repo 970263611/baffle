@@ -3,7 +3,6 @@ package com.dahuaboke.handler.net.template;
 import com.dahuaboke.handler.net.RequestCallBack;
 import com.dahuaboke.model.BaffleResponse;
 import com.dahuaboke.model.HttpTemplateMode;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.netty.handler.codec.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
@@ -28,12 +27,17 @@ public class RequestTemplateFacade {
                 String headerName = registerModel.getHeaderName();
                 String value = headers.get(headerName.toLowerCase());
                 String headerValue = registerModel.getHeaderValue();
+                AbstractMethodTemplate abstractMethodTemplate = registerModel.getAbstractMethodTemplate();
                 if ((value != null && (headerValue.equalsIgnoreCase(value) || value.startsWith(headerValue)))
                         || HttpMethod.GET.equals(method)) {
-                    AbstractMethodTemplate abstractMethodTemplate = registerModel.getAbstractMethodTemplate();
                     abstractMethodTemplate.exec(url, headers, body, requestCallBack);
-                    return;
+                } else if (value == null && HttpMethod.POST.equals(method)) {
+                    HttpTemplateMode httpTemplateMode = registerModel.getHttpTemplateMode();
+                    if (HttpTemplateMode.POST_JSON.equals(httpTemplateMode)) {
+                        abstractMethodTemplate.exec(url, headers, body, requestCallBack);
+                    }
                 }
+                return;
             }
         }
         requestCallBack.complate(new BaffleResponse(false, "异常：该请求方式暂不支持"));
