@@ -20,5 +20,11 @@ public class BaffleConst {
 
     public static final String FORM_SPLIT = "boundary=";
 
+    public static final String STR_FILENAME = "filename";
+
+    public static final String STR_NAME = "name";
+
+    public static final String BAFFLE_BASE_DIR = System.getProperty("user.home") + "/baffle/";
+
 
 }
