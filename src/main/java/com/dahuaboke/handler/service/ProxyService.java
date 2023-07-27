@@ -22,8 +22,11 @@ public class ProxyService {
     private RequestTemplateFacade requestTemplateFacade;
 
     public BaffleResponse proxy(String url, HttpMethod method, Map<String, String> headers, String body) throws ExecutionException, InterruptedException {
+        System.out.println(String.format("\r\n转发请求：url：%s，method：%s，headers：%s", url, method, headers));
         CompletableFuture<BaffleResponse> completableFuture = new CompletableFuture();
         RequestCallBack requestCallBack = (baffleResponse) -> {
+            System.out.println("请求结果：" + baffleResponse.isSuccess());
+            System.out.println("------------------------------------------------------------------\r\n");
             completableFuture.complete(baffleResponse);
         };
         requestTemplateFacade.exec(url, method, headers, body, requestCallBack);

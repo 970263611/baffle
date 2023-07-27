@@ -4,6 +4,7 @@ import io.netty.handler.codec.http.HttpMethod;
 import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
@@ -11,6 +12,7 @@ import java.util.Map;
  * @author dahua
  * @time 2023/7/27 9:37
  */
+@Component
 public class PatchJsonMethodTemplate extends AbstractMethodTemplate {
 
     public PatchJsonMethodTemplate(RequestTemplateFacade requestTemplateFacade) {

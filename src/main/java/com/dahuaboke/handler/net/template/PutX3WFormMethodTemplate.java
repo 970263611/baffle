@@ -14,9 +14,9 @@ import java.util.Map;
  * @time 2023/7/19 21:57
  */
 @Component
-public class PostX3WFormMethodTemplate extends AbstractMethodTemplate {
+public class PutX3WFormMethodTemplate extends AbstractMethodTemplate {
 
-    public PostX3WFormMethodTemplate(RequestTemplateFacade requestTemplateFacade) {
+    public PutX3WFormMethodTemplate(RequestTemplateFacade requestTemplateFacade) {
         super(requestTemplateFacade);
     }
 
@@ -31,12 +31,12 @@ public class PostX3WFormMethodTemplate extends AbstractMethodTemplate {
             }
         }
         FormBody formBody = builderPostForm.build();
-        return builder.post(formBody).url(url).build();
+        return builder.put(formBody).url(url).build();
     }
 
     @Override
     protected HttpMethod httpMethod() {
-        return HttpMethod.POST;
+        return HttpMethod.PUT;
     }
 
     @Override
