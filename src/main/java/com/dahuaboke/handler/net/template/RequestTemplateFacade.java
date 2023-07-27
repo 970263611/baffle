@@ -30,13 +30,14 @@ public class RequestTemplateFacade {
                 if ((value != null && (headerValue.equalsIgnoreCase(value) || value.startsWith(headerValue)))
                         || HttpMethod.GET.equals(method)) {
                     abstractMethodTemplate.exec(url, headers, body, requestCallBack);
+                    return;
                 } else if (value == null) {
                     boolean defaultMethodTemplate = registerModel.isDefaultMethodTemplate();
                     if (defaultMethodTemplate) {
                         abstractMethodTemplate.exec(url, headers, body, requestCallBack);
+                        return;
                     }
                 }
-                return;
             }
         }
         requestCallBack.complate(new BaffleResponse(false, "异常：该请求方式暂不支持"));
