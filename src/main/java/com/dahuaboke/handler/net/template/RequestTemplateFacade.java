@@ -2,7 +2,6 @@ package com.dahuaboke.handler.net.template;
 
 import com.dahuaboke.handler.net.RequestCallBack;
 import com.dahuaboke.model.BaffleResponse;
-import com.dahuaboke.model.HttpTemplateMode;
 import io.netty.handler.codec.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
@@ -31,9 +30,9 @@ public class RequestTemplateFacade {
                 if ((value != null && (headerValue.equalsIgnoreCase(value) || value.startsWith(headerValue)))
                         || HttpMethod.GET.equals(method)) {
                     abstractMethodTemplate.exec(url, headers, body, requestCallBack);
-                } else if (value == null && HttpMethod.POST.equals(method)) {
-                    HttpTemplateMode httpTemplateMode = registerModel.getHttpTemplateMode();
-                    if (HttpTemplateMode.POST_JSON.equals(httpTemplateMode)) {
+                } else if (value == null) {
+                    boolean defaultMethodTemplate = registerModel.isDefaultMethodTemplate();
+                    if (defaultMethodTemplate) {
                         abstractMethodTemplate.exec(url, headers, body, requestCallBack);
                     }
                 }
@@ -43,28 +42,28 @@ public class RequestTemplateFacade {
         requestCallBack.complate(new BaffleResponse(false, "异常：该请求方式暂不支持"));
     }
 
-    public void register(AbstractMethodTemplate abstractMethodTemplate, HttpMethod httpMethod, HttpTemplateMode httpTemplateMode, String headerName, String headerValue) {
+    public void register(AbstractMethodTemplate abstractMethodTemplate, HttpMethod httpMethod, String headerName, String headerValue, boolean defaultMethodTemplate) {
         List<RegisterModel> registerModels = registerModeTemplate.get(httpMethod);
         if (registerModels == null) {
             registerModels = new ArrayList();
 
         }
-        registerModels.add(new RegisterModel(abstractMethodTemplate, httpTemplateMode, headerName, headerValue));
+        registerModels.add(new RegisterModel(abstractMethodTemplate, headerName, headerValue, defaultMethodTemplate));
         registerModeTemplate.put(httpMethod, registerModels);
     }
 
     class RegisterModel {
 
         private AbstractMethodTemplate abstractMethodTemplate;
-        private HttpTemplateMode httpTemplateMode;
         private String headerName;
         private String headerValue;
+        private boolean defaultMethodTemplate;
 
-        public RegisterModel(AbstractMethodTemplate abstractMethodTemplate, HttpTemplateMode httpTemplateMode, String headerName, String headerValue) {
+        public RegisterModel(AbstractMethodTemplate abstractMethodTemplate, String headerName, String headerValue, boolean defaultMethodTemplate) {
             this.abstractMethodTemplate = abstractMethodTemplate;
-            this.httpTemplateMode = httpTemplateMode;
             this.headerName = headerName;
             this.headerValue = headerValue;
+            this.defaultMethodTemplate = defaultMethodTemplate;
         }
 
         public AbstractMethodTemplate getAbstractMethodTemplate() {
@@ -73,14 +72,6 @@ public class RequestTemplateFacade {
 
         public void setAbstractMethodTemplate(AbstractMethodTemplate abstractMethodTemplate) {
             this.abstractMethodTemplate = abstractMethodTemplate;
-        }
-
-        public HttpTemplateMode getHttpTemplateMode() {
-            return httpTemplateMode;
-        }
-
-        public void setHttpTemplateMode(HttpTemplateMode httpTemplateMode) {
-            this.httpTemplateMode = httpTemplateMode;
         }
 
         public String getHeaderName() {
@@ -97,6 +88,14 @@ public class RequestTemplateFacade {
 
         public void setHeaderValue(String headerValue) {
             this.headerValue = headerValue;
+        }
+
+        public boolean isDefaultMethodTemplate() {
+            return defaultMethodTemplate;
+        }
+
+        public void setDefaultMethodTemplate(boolean defaultMethodTemplate) {
+            this.defaultMethodTemplate = defaultMethodTemplate;
         }
     }
 }

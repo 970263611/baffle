@@ -8,23 +8,23 @@ import java.util.Map;
 
 /**
  * @author dahua
- * @time 2023/7/19 21:57
+ * @time 2023/7/27 9:40
  */
 @Component
-public class GetMethodTemplate extends AbstractMethodTemplate {
+public class OptionsMethodTemplate extends AbstractMethodTemplate {
 
-    public GetMethodTemplate(RequestTemplateFacade requestTemplateFacade) {
+    public OptionsMethodTemplate(RequestTemplateFacade requestTemplateFacade) {
         super(requestTemplateFacade);
     }
 
     @Override
-    public Request forward(Request.Builder builder, String url, Map<String, String> headers, String body) {
+    Request forward(Request.Builder builder, String url, Map<String, String> headers, String body) {
         return builder.get().url(url).build();
     }
 
     @Override
     protected HttpMethod httpMethod() {
-        return HttpMethod.GET;
+        return HttpMethod.OPTIONS;
     }
 
     @Override

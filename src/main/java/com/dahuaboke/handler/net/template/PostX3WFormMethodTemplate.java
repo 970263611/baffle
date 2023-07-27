@@ -1,6 +1,5 @@
 package com.dahuaboke.handler.net.template;
 
-import com.dahuaboke.model.HttpTemplateMode;
 import io.netty.handler.codec.http.HttpMethod;
 import okhttp3.FormBody;
 import okhttp3.Request;
@@ -38,16 +37,6 @@ public class PostX3WFormMethodTemplate extends AbstractMethodTemplate {
     @Override
     protected HttpMethod httpMethod() {
         return HttpMethod.POST;
-    }
-
-    @Override
-    protected HttpTemplateMode httpTemplateMode() {
-        return HttpTemplateMode.POST_FORM;
-    }
-
-    @Override
-    protected String headerName() {
-        return "Content-Type";
     }
 
     @Override

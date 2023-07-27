@@ -3,7 +3,6 @@ package com.dahuaboke.handler.net.template;
 import com.dahuaboke.handler.net.HttpClient;
 import com.dahuaboke.handler.net.RequestCallBack;
 import com.dahuaboke.model.BaffleResponse;
-import com.dahuaboke.model.HttpTemplateMode;
 import io.netty.handler.codec.http.HttpMethod;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -54,13 +53,17 @@ public abstract class AbstractMethodTemplate {
 
     protected abstract HttpMethod httpMethod();
 
-    protected abstract HttpTemplateMode httpTemplateMode();
+    protected String headerName() {
+        return "Content-Type";
+    }
 
-    protected abstract String headerName();
+    protected boolean defaultMethodTemplate() {
+        return false;
+    }
 
     protected abstract String headerValue();
 
     private void register(RequestTemplateFacade requestTemplateFacade) {
-        requestTemplateFacade.register(this, httpMethod(), httpTemplateMode(), headerName(), headerValue());
+        requestTemplateFacade.register(this, httpMethod(), headerName(), headerValue(), defaultMethodTemplate());
     }
 }
