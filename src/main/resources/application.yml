@@ -11,4 +11,4 @@ baffle:
   global:
     mode: file
   enable:
-    inbound-links: true
+    inbound-links: false

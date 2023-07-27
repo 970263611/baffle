@@ -38,7 +38,7 @@ public class HttpController {
         Iterator<Map.Entry<String, String>> iterator = fullHttpRequest.headers().iterator();
         while (iterator.hasNext()) {
             Map.Entry<String, String> next = iterator.next();
-            headers.put(next.getKey(), next.getValue());
+            headers.put(next.getKey().toLowerCase(), next.getValue());
         }
         String body = fullHttpRequest.content().toString(CharsetUtil.UTF_8);
         try {

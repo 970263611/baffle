@@ -57,7 +57,6 @@ public abstract class AbstractModeTemplate {
     protected BaffleResponse getProxyMessage(HttpMethod method, String uri, Map<String, String> headers, String body) throws ExecutionException, InterruptedException, JsonProcessingException {
         List<String> forwardAddress = Arrays.asList(springProperties.getForwardAddress());
         String appointIpAndPort = headers.get(BaffleConst.BAFFLE_APPOINT_IP_PORT);
-        appointIpAndPort = appointIpAndPort == null ? headers.get(BaffleConst.BAFFLE_APPOINT_IP_PORT.toUpperCase()) : appointIpAndPort;
         if (appointIpAndPort == null) {
             Map<String, String> result = new HashMap();
             for (String host : forwardAddress) {

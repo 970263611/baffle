@@ -3,6 +3,7 @@ package com.dahuaboke.handler.net.template;
 import com.dahuaboke.handler.net.RequestCallBack;
 import com.dahuaboke.model.BaffleResponse;
 import com.dahuaboke.model.HttpTemplateMode;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.netty.handler.codec.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
@@ -25,9 +26,7 @@ public class RequestTemplateFacade {
         if (registerModels != null) {
             for (RegisterModel registerModel : registerModels) {
                 String headerName = registerModel.getHeaderName();
-                String value = headers.get(headerName);
-                value = value == null ? headers.get(headerName.toLowerCase()) : value;
-                value = value == null ? headers.get(headerName.toUpperCase()) : value;
+                String value = headers.get(headerName.toLowerCase());
                 String headerValue = registerModel.getHeaderValue();
                 if ((value != null && (headerValue.equalsIgnoreCase(value) || value.startsWith(headerValue)))
                         || HttpMethod.GET.equals(method)) {
