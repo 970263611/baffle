@@ -11,10 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.handler.codec.http.HttpMethod;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -30,9 +27,12 @@ public abstract class AbstractModeTemplate {
     private ProxyService proxyService;
     @Autowired
     private SpringProperties springProperties;
+    private List<String> forwardAddress;
 
     public AbstractModeTemplate(ModeTemplateFacade modeTemplateFacade) {
         this.register(modeTemplateFacade);
+        List<String> list = Arrays.asList(springProperties.getForwardAddress());
+        forwardAddress = list == null ? new ArrayList() : new ArrayList(list);
     }
 
     public abstract String readData(JsonFileObject jsonFileObject, HttpMethod method, String uri, Map<String, String> headers, String body, long beginTime) throws ExecutionException, InterruptedException, JsonProcessingException, TimeoutException;
@@ -56,13 +56,18 @@ public abstract class AbstractModeTemplate {
 
 
     protected BaffleResponse getProxyMessage(HttpMethod method, String uri, Map<String, String> headers, String body, long beginTime) throws ExecutionException, InterruptedException, JsonProcessingException, TimeoutException {
-        List<String> forwardAddress = Arrays.asList(springProperties.getForwardAddress());
         String appointIpAndPort = headers.get(BaffleConst.BAFFLE_APPOINT_IP_PORT);
         if (appointIpAndPort == null) {
-            Map<String, String> result = new HashMap();
+            Map<String, String> result = new HashMap(forwardAddress.size(), 1);
             for (String host : forwardAddress) {
                 BaffleResponse proxyMessage = getProxyMessage(host, uri, method, headers, body, beginTime);
                 if (proxyMessage.isSuccess()) {
+                    if (!host.equals(forwardAddress.get(0))) {
+                        synchronized (this) {
+                            forwardAddress.remove(host);
+                            forwardAddress.add(0, host);
+                        }
+                    }
                     return proxyMessage;
                 } else {
                     result.put(host + uri, proxyMessage.getResponse());
