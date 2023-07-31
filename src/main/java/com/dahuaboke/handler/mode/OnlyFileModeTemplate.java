@@ -21,7 +21,7 @@ public class OnlyFileModeTemplate extends AbstractModeTemplate {
     }
 
     @Override
-    public String readData(JsonFileObject jsonFileObject, HttpMethod method, String uri, Map<String, String> headers, String body) throws ExecutionException, InterruptedException, JsonProcessingException {
+    public String readData(JsonFileObject jsonFileObject, HttpMethod method, String uri, Map<String, String> headers, String body, long beginTime) throws ExecutionException, InterruptedException, JsonProcessingException {
         if (jsonFileObject != null) {
             return getFileMessage(jsonFileObject);
         }

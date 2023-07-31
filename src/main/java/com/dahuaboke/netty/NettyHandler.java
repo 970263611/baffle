@@ -19,10 +19,11 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
+        long beginTime = System.currentTimeMillis();
         if (msg instanceof FullHttpRequest) {
             FullHttpRequest fullHttpRequest = (FullHttpRequest) msg;
             HttpController httpController = SpringBeanUtil.getBean(HttpController.class);
-            String result = httpController.handle(fullHttpRequest);
+            String result = httpController.handle(fullHttpRequest, beginTime);
             ByteBuf content = Unpooled.copiedBuffer(result, CharsetUtil.UTF_8);
             DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, content);
             response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json");

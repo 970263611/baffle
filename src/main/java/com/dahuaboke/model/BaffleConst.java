@@ -26,5 +26,17 @@ public class BaffleConst {
 
     public static final String BAFFLE_BASE_DIR = System.getProperty("user.home") + "/baffle/";
 
+    public static final String EXCEPTION_TIMEOUT_MESSAGE = "异常：请求超时";
 
+    public static final String EXCEPTION_NOT_ALLOW_METHOD_MESSAGE = "异常：该请求方式暂不支持";
+
+    public static final String EXCEPTION_NOT_ALLOW_RESOURCES_MESSAGE = "异常：请勿访问非法资源";
+
+    public static final String EXCEPTION_ERROR_PARAM_MESSAGE = "异常：请求参数错误";
+
+    public static final String EXCEPTION_PARSE_JSON_MESSAGE = "异常：参数解析为JSON时出现错误";
+
+    public static final String EXCEPTION_INTERRUPTED_MESSAGE = "异常：线程打断异常";
+
+    public static final String EXCEPTION_EXECUTION_MESSAGE = "异常：线程提交异常";
 }

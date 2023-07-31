@@ -1,6 +1,7 @@
 package com.dahuaboke.handler.net.template;
 
 import com.dahuaboke.handler.net.RequestCallBack;
+import com.dahuaboke.model.BaffleConst;
 import com.dahuaboke.model.BaffleResponse;
 import io.netty.handler.codec.http.HttpMethod;
 import org.springframework.stereotype.Component;
@@ -40,7 +41,7 @@ public class RequestTemplateFacade {
                 }
             }
         }
-        requestCallBack.complate(new BaffleResponse(false, "异常：该请求方式暂不支持"));
+        requestCallBack.complate(new BaffleResponse(false, BaffleConst.EXCEPTION_NOT_ALLOW_METHOD_MESSAGE));
     }
 
     public void register(AbstractMethodTemplate abstractMethodTemplate, HttpMethod httpMethod, String headerName, String headerValue, boolean defaultMethodTemplate) {

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author dahua
@@ -22,8 +23,8 @@ public class ProxyModeTemplate extends AbstractModeTemplate {
     }
 
     @Override
-    public String readData(JsonFileObject jsonFileObject, HttpMethod method, String uri, Map<String, String> headers, String body) throws ExecutionException, InterruptedException, JsonProcessingException {
-        BaffleResponse proxyMessage = getProxyMessage(method, uri, headers, body);
+    public String readData(JsonFileObject jsonFileObject, HttpMethod method, String uri, Map<String, String> headers, String body, long beginTime) throws ExecutionException, InterruptedException, JsonProcessingException, TimeoutException {
+        BaffleResponse proxyMessage = getProxyMessage(method, uri, headers, body, beginTime);
         if (!proxyMessage.isSuccess()) {
             String fileMessage = getFileMessage(jsonFileObject);
             if (fileMessage != null) {

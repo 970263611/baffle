@@ -29,7 +29,7 @@ public abstract class AbstractFileFormMethodTemplate extends AbstractMethodTempl
             }
         }
         if (boundary == null) {
-            throw new IllegalArgumentException("异常：请求参数错误，缺少boundary");
+            throw new IllegalArgumentException(BaffleConst.EXCEPTION_ERROR_PARAM_MESSAGE);
         }
         String[] split = body.split(boundary);
         MultipartBody.Builder multipartBody = new MultipartBody.Builder();

@@ -2,6 +2,7 @@ package com.dahuaboke.handler.controller;
 
 import com.dahuaboke.handler.mode.ModeTemplateFacade;
 import com.dahuaboke.handler.service.FileService;
+import com.dahuaboke.model.BaffleConst;
 import com.dahuaboke.model.BaffleMode;
 import com.dahuaboke.model.JsonFileObject;
 import com.dahuaboke.spring.SpringProperties;
@@ -16,6 +17,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author dahua
@@ -31,7 +33,7 @@ public class HttpController {
     @Autowired
     private ModeTemplateFacade modeTemplateFacade;
 
-    public String handle(FullHttpRequest fullHttpRequest) {
+    public String handle(FullHttpRequest fullHttpRequest, long beginTime) {
         HttpMethod method = fullHttpRequest.getMethod();
         String uri = fullHttpRequest.getUri();
         Map<String, String> headers = new HashMap();
@@ -42,13 +44,19 @@ public class HttpController {
         }
         String body = fullHttpRequest.content().toString(CharsetUtil.UTF_8);
         try {
-            return handle(method, uri, headers, body);
-        } catch (Exception e) {
-            return e.getCause().toString();
+            return handle(method, uri, headers, body, beginTime);
+        } catch (ExecutionException e) {
+            return BaffleConst.EXCEPTION_EXECUTION_MESSAGE;
+        } catch (InterruptedException e) {
+            return BaffleConst.EXCEPTION_INTERRUPTED_MESSAGE;
+        } catch (JsonProcessingException e) {
+            return BaffleConst.EXCEPTION_PARSE_JSON_MESSAGE;
+        } catch (TimeoutException e) {
+            return BaffleConst.EXCEPTION_TIMEOUT_MESSAGE;
         }
     }
 
-    public String handle(HttpMethod method, String uri, Map<String, String> headers, String body) throws ExecutionException, InterruptedException, JsonProcessingException {
+    public String handle(HttpMethod method, String uri, Map<String, String> headers, String body, long beginTime) throws ExecutionException, InterruptedException, JsonProcessingException, TimeoutException {
         JsonFileObject jsonFileObject = fileService.getObjByUri(uri);
         BaffleMode baffleMode = springProperties.getBaffleMode();
         if (jsonFileObject != null) {
@@ -57,6 +65,6 @@ public class HttpController {
                 baffleMode = mode;
             }
         }
-        return modeTemplateFacade.readDate(baffleMode, jsonFileObject, method, uri, headers, body);
+        return modeTemplateFacade.readDate(baffleMode, jsonFileObject, method, uri, headers, body, beginTime);
     }
 }

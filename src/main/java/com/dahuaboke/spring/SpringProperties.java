@@ -18,6 +18,9 @@ public class SpringProperties {
     @Value("${baffle.global.mode}")
     private String baffleMode;
 
+    @Value("${baffle.global.timeout}")
+    private int globalTimeout;
+
     @Value("${baffle.forward.connect.timeout}")
     private String forwardConnectTimeout;
 
@@ -84,5 +87,13 @@ public class SpringProperties {
 
     public void setDataCheckMethod(String dataCheckMethod) {
         this.dataCheckMethod = dataCheckMethod;
+    }
+
+    public long getGlobalTimeout() {
+        return globalTimeout == 0 ? 5000 : new Long(globalTimeout);
+    }
+
+    public void setGlobalTimeout(int globalTimeout) {
+        this.globalTimeout = globalTimeout;
     }
 }

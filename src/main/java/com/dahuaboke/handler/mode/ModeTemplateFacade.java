@@ -1,5 +1,6 @@
 package com.dahuaboke.handler.mode;
 
+import com.dahuaboke.model.BaffleConst;
 import com.dahuaboke.model.BaffleMode;
 import com.dahuaboke.model.JsonFileObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author dahua
@@ -19,12 +21,12 @@ public class ModeTemplateFacade {
 
     public Map<BaffleMode, AbstractModeTemplate> registerModeTemplate = new HashMap();
 
-    public String readDate(BaffleMode baffleMode, JsonFileObject jsonFileObject, HttpMethod method, String uri, Map<String, String> headers, String body) throws ExecutionException, InterruptedException, JsonProcessingException {
+    public String readDate(BaffleMode baffleMode, JsonFileObject jsonFileObject, HttpMethod method, String uri, Map<String, String> headers, String body, long beginTime) throws ExecutionException, InterruptedException, JsonProcessingException, TimeoutException {
         AbstractModeTemplate abstractModeTemplate = registerModeTemplate.get(baffleMode);
         if (abstractModeTemplate == null) {
-            return "异常：请求模式配置错误";
+            return BaffleConst.EXCEPTION_NOT_ALLOW_METHOD_MESSAGE;
         }
-        return abstractModeTemplate.readData(jsonFileObject, method, uri, headers, body);
+        return abstractModeTemplate.readData(jsonFileObject, method, uri, headers, body, beginTime);
     }
 
     public void register(AbstractModeTemplate abstractModeTemplate, BaffleMode baffleMode) {
