@@ -35,7 +35,6 @@ public class SpringConfig extends DefaultPropertySourceFactory {
     }
 
     @Bean
-    @Order
     public ObjectMapper objectMapper() {
         return new ObjectMapper();
     }

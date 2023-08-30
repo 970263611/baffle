@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.handler.codec.http.HttpMethod;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -31,6 +32,10 @@ public abstract class AbstractModeTemplate {
 
     public AbstractModeTemplate(ModeTemplateFacade modeTemplateFacade) {
         this.register(modeTemplateFacade);
+    }
+
+    @PostConstruct
+    public void init() {
         List<String> list = Arrays.asList(springProperties.getForwardAddress());
         forwardAddress = list == null ? new ArrayList() : new ArrayList(list);
     }
@@ -43,8 +48,14 @@ public abstract class AbstractModeTemplate {
         modeTemplateFacade.register(this, baffleMode());
     }
 
-    protected String getFileMessage(JsonFileObject jsonFileObject) {
+    protected String getFileMessage(JsonFileObject jsonFileObject, long beginTime) {
         try {
+            long nowTime = System.currentTimeMillis();
+            long costTime = nowTime - beginTime;
+            long globalTimeout = springProperties.getGlobalTimeout();
+            if (costTime >= globalTimeout) {
+                return BaffleConst.EXCEPTION_TIMEOUT_MESSAGE;
+            }
             if (springProperties.getDataCheckMethod() && !jsonFileObject.getType().equals(HttpMethod.GET)) {
                 return BaffleConst.EXCEPTION_NOT_ALLOW_METHOD_MESSAGE;
             }

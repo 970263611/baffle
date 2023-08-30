@@ -26,7 +26,7 @@ public class ProxyModeTemplate extends AbstractModeTemplate {
     public String readData(JsonFileObject jsonFileObject, HttpMethod method, String uri, Map<String, String> headers, String body, long beginTime) throws ExecutionException, InterruptedException, JsonProcessingException, TimeoutException {
         BaffleResponse proxyMessage = getProxyMessage(method, uri, headers, body, beginTime);
         if (!proxyMessage.isSuccess()) {
-            String fileMessage = getFileMessage(jsonFileObject);
+            String fileMessage = getFileMessage(jsonFileObject, beginTime);
             if (fileMessage != null) {
                 return fileMessage;
             }

@@ -28,8 +28,10 @@ public class ProxyService {
     private SpringProperties springProperties;
 
     public BaffleResponse proxy(String url, HttpMethod method, Map<String, String> headers, String body, long beginTime) throws ExecutionException, InterruptedException, TimeoutException {
+        System.out.println(String.format("\r\n转发请求：url：%s，method：%s，headers：%s", url, method, headers));
         CompletableFuture<BaffleResponse> completableFuture = new CompletableFuture();
         RequestCallBack requestCallBack = (baffleResponse) -> {
+            System.out.println("请求结果：" + baffleResponse.isSuccess() + "\r\n");
             completableFuture.complete(baffleResponse);
         };
         requestTemplateFacade.exec(url, method, headers, body, requestCallBack);

@@ -28,7 +28,7 @@ public class FileModeTemplate extends AbstractModeTemplate {
             BaffleResponse proxyMessage = getProxyMessage(method, uri, headers, body, beginTime);
             return proxyMessage.getResponse();
         }
-        return getFileMessage(jsonFileObject);
+        return getFileMessage(jsonFileObject, beginTime);
     }
 
     @Override

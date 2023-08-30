@@ -3,6 +3,8 @@ package com.dahuaboke.spring;
 import com.dahuaboke.model.BaffleMode;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.Map;
+
 /**
  * @author dahua
  * @time 2023/7/18 9:49
@@ -32,6 +34,12 @@ public class SpringProperties {
 
     @Value("${baffle.data.check-method}")
     private String dataCheckMethod;
+
+    @Value("${baffle.global.http.wait}")
+    private int globalHttpWait;
+
+    @Value("#{${baffle.http.wait.uri-map}}")
+    private Map<String, Integer> httpUriWaiters;
 
     public String[] getDataFilename() {
         return dataFilename;
@@ -95,5 +103,21 @@ public class SpringProperties {
 
     public void setGlobalTimeout(int globalTimeout) {
         this.globalTimeout = globalTimeout;
+    }
+
+    public int getGlobalHttpWait() {
+        return globalHttpWait;
+    }
+
+    public void setGlobalHttpWait(int globalHttpWait) {
+        this.globalHttpWait = globalHttpWait;
+    }
+
+    public Map<String, Integer> getHttpUriWaiters() {
+        return httpUriWaiters;
+    }
+
+    public void setHttpUriWaiters(Map<String, Integer> httpUriWaiters) {
+        this.httpUriWaiters = httpUriWaiters;
     }
 }

@@ -2,6 +2,7 @@ package com.dahuaboke.handler.controller;
 
 import com.dahuaboke.handler.mode.ModeTemplateFacade;
 import com.dahuaboke.handler.service.FileService;
+import com.dahuaboke.handler.service.WaiterService;
 import com.dahuaboke.model.BaffleConst;
 import com.dahuaboke.model.BaffleMode;
 import com.dahuaboke.model.JsonFileObject;
@@ -32,6 +33,8 @@ public class HttpController {
     private SpringProperties springProperties;
     @Autowired
     private ModeTemplateFacade modeTemplateFacade;
+    @Autowired
+    private WaiterService waiterService;
 
     public String handle(FullHttpRequest fullHttpRequest, long beginTime) {
         HttpMethod method = fullHttpRequest.getMethod();
@@ -44,6 +47,7 @@ public class HttpController {
         }
         String body = fullHttpRequest.content().toString(CharsetUtil.UTF_8);
         try {
+            waiterService.handle(uri);
             return handle(method, uri, headers, body, beginTime);
         } catch (ExecutionException e) {
             return BaffleConst.EXCEPTION_EXECUTION_MESSAGE;
