@@ -1,4 +1,6 @@
 # baffle
+
+[![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
 为简化开发流程而生!
 
 #### 数据支持
@@ -57,3 +59,4 @@ http、webSocket（计划支持）
 
 大花出品，必属精品！
 
+[![LICENSE](https://img.shields.io/badge/license-Anti%20996-blue.svg)](https://github.com/996icu/996.ICU/blob/master/LICENSE)
