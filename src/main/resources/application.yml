@@ -17,4 +17,4 @@ baffle:
     inbound-links: true
   http:
     wait:
-      uri-map: '{ "/a": 10000, "/b": 200 }'
+      uri-map: '{ "/a": 100, "/b": 200 }'
